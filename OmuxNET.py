@@ -80,7 +80,7 @@ class OmuxNET:
     """
     errors = {
         # Optomux errors returned by the controller or brain
-         0:'Power-Up Clear Expected — Command Ignored',
+         0:'Power-Up Clear Expected - Command Ignored',
         -1:'Power Up Clear Expected',
         -2:'Undefined Command',
         -3:'Checksum Error',
@@ -652,9 +652,6 @@ class OmuxNET:
             # reasonable but command only uses the top 8 bits
             # thus the divide by 16
                 return [0,'{:02X}{:02X}'.format(values[0]>>4,values[1]>>4)]          
-##        46: ('S[positions][data]', 'Update Analog Outputs'),
-        elif command == self.command_name['Update Analog Outputs']:
-            pass
 ##        50: ('V[positions][modifiers][data]', 'Enhanced Output Waveform'),
         elif command == self.command_name['Enhanced Output Waveform']\
              and values[0] in self.analog_value_valid_range\
@@ -686,8 +683,13 @@ class OmuxNET:
         # if there is a value for each position
         if len(positions) == len(values):
             v = ''
+    ##        46: ('S[positions][data]', 'Update Analog Outputs'),
+            if command == self.command_name['Update Analog Outputs']:
+                for i in reversed(range(len(values))):
+                    v += '{:03X}'.format(values[i])
+                return [0,v]        
     ##        53: ('W[positions][data]', 'Set Offsets'),
-            if command == self.command_name['Set Offsets']:
+            elif command == self.command_name['Set Offsets']:
                 # the user's guide indicates the highest position index
                 # is the first value returned, but in the Optoware info
                 # array it looks like the lowest index value is first
@@ -733,11 +735,11 @@ class OmuxNET:
                     elif isinstance(kwargs['data'],int):
                         return self.verify_single_data_value(command,kwargs['data'])   
                 # commands which take several data elements
-                elif command in (26,39,43,46,50,68):
+                elif command in (26,39,43,50,68):
                     if isinstance(kwargs['data'],tuple):
                         return self.verify_list_of_data_values(command,kwargs['data'])   
                 # commands which take one data value per position
-                elif command in (53,56,78):
+                elif command in (46,53,56,78):
                     if isinstance(kwargs['data'],tuple):
                         return self.verify_list_of_data_values_per_point(\
                             command,kwargs['positions'],kwargs['data'])
