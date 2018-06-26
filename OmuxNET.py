@@ -912,7 +912,8 @@ class OmuxNET:
                 return ('E',err)
         else:
             # parrot caller's error
-            utl.log_error_message(self.errors[pkt[1]])
+            err = -pkt[1]
+            utl.log_error_message(self.errors[err])
             return pkt
 
     @utl.logger
@@ -972,7 +973,7 @@ class OmuxNET:
                     utl.log_error_message(self.errors[err])
                     return ('E',err)
         elif rsp.startswith('N'):
-            err = int(rsp[1:-1],16)
+            err = -int(rsp[1:-1],16)
             utl.log_error_message(self.errors[err])
             return ('N',err)
         else:
